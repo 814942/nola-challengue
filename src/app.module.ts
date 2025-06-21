@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { AppService } from './app.service';
-
 import { AuthModule } from './auth/auth.module';
 
 import { config } from './commons/config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerModule } from './logger/logger.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         password: configService.get<string>('database.password'),
         database: configService.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
         retryAttempts: 10,
         retryDelay: 3000,
         connectTimeout: 60000,
@@ -34,8 +34,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         },
       }),
     }),
-    AuthModule],
+    AuthModule,
+    LoggerModule,
+    UsersModule],
   controllers: [],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}
