@@ -7,6 +7,8 @@ import { config } from './commons/config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './users/users.module';
+import { WebsocketsModule } from './websockets/websockets.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -36,7 +38,10 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     LoggerModule,
-    UsersModule],
+    UsersModule,
+    WebsocketsModule,
+    MessagesModule
+  ],
   controllers: [],
   providers: [],
 })

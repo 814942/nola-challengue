@@ -4,7 +4,7 @@ import {
   IsNotEmpty,
   IsString
 } from "class-validator"
-import { PasswordRules } from "src/commons/decorators/password-rules.decorator";
+import { PasswordRules } from "../../../commons/decorators/password-rules.decorator";
 
 export class SignUpUserRequestDTO {
   @ApiProperty({

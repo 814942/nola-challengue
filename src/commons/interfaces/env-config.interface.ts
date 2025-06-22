@@ -11,9 +11,15 @@ interface Tokens {
   refresh: string;
 }
 
+interface RedisConfigProps {
+  host: string;
+  port: number;
+};
+
 export interface ConfigProps {
   port: number;
   database: DatabaseConfigProps;
   whitelist: string;
   tokens: Tokens;
+  redis: RedisConfigProps
 }

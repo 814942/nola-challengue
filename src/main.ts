@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
+
+import { LoggerService } from './logger/logger.service';
+
+import { HttpExceptionFilter } from './commons/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +42,10 @@ async function bootstrap() {
     enableDebugMessages: true,
     transform: true
   }));
+
+  // Global filter
+  const logger = await app.resolve(LoggerService);
+  app.useGlobalFilters(new HttpExceptionFilter(logger));
 
   // Swagger config
   const config = new DocumentBuilder()

@@ -24,7 +24,7 @@ export class User {
     minLength: 6,
     maxLength: 50,
   })
-  @Exclude()
+  // @Exclude()
   @Column({ select: false })
   password: string;
 

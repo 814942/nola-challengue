@@ -1,17 +1,20 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { DataSource } from 'typeorm';
 import { instanceToPlain } from 'class-transformer';
-import { LoggerService } from 'src/logger/logger.service';
+
+import { LoggerService } from '../../logger/logger.service';
+
 import { AuthTokensDTO, AuthUserDTO, AuthUserResponseDTO } from '../dtos/response/auth-user.response.dto';
-import { User } from 'src/users/entities/user.entity';
-import { isCodeMatching } from '../helpers/is-code-matching';
 import { SignInUserRequestDTO } from '../dtos/request/sign-in-user.request.dto';
-import { hashPassword } from '../helpers/hash-password';
-import { UsersService } from 'src/users/services/users.service';
 import { SignUpUserRequestDTO } from '../dtos/request/sign-up-user.request.dto';
+
+import { User } from '../../users/entities/user.entity';
+
+import { UsersService } from '../../users/services/users.service';
+
+import { isCodeMatching } from '../helpers/is-code-matching';
+import { hashPassword } from '../helpers/hash-password';
 
 @Injectable()
 export class AuthService {

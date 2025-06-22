@@ -1,98 +1,143 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# WebSocket Gateway - Prueba y Documentación
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Probar WebSocket Gateway con Postman
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### 1. Obtener JWT
+- Realizá un POST a `/auth/sign-in` con el email y password de un usuario registrado.
+- Copiá el `accessToken` de la respuesta.
 
-## Description
+### 2. Conectarse al WebSocket
+- En Postman, seleccioná **New → Socket.IO Request**.
+- Usá la siguiente URL:
+  ```
+  ws://localhost:8080
+  ```
+- En la pestaña **Headers**, agregá:
+  ```
+  Key: Authorization
+  Value: Bearer TU_JWT_AQUI
+  ```
+  (Reemplazá `TU_JWT_AQUI` por el token obtenido en el paso anterior)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 3. Subscripciones
+- En la pestaña Events deberas subscribirte a dos eventos: pong y message.
+- Al conectar, deberías recibir automáticamente:
+  ```
+  Bienvenido {usuario}
+  ```
 
-## Project setup
+### 4. Enviar y recibir ping/pong
+- En la pestaña Message, escribí:
+  ```
+  ping
+  ```
+- Hacé clic en **Send**.
+- Deberías recibir:
+  ```
+  pong {timestamp}
+  ```
 
-```bash
-$ npm install
+### 5. Errores comunes
+- Si el token es inválido o falta, la conexión se cierra automáticamente.
+- Si el puerto o la URL no coinciden, la conexión fallará.
+
+---
+
+**Nota:**  
+No es posible probar WebSockets desde Swagger/OpenAPI, ya que solo soporta
+
+## Redis Pub/Sub: Guía de uso y pruebas
+
+### ¿Qué es Redis Pub/Sub?
+
+Redis Pub/Sub es un sistema de mensajería basado en canales. Permite que una parte de la aplicación publique mensajes en un canal y que otras partes (suscriptores) reciban esos mensajes en tiempo real, sin necesidad de consultar una base de datos.
+
+---
+
+### ¿Cómo se usa en este proyecto?
+
+- Cuando realizás un **POST** a `/messages`, el backend:
+  1. Almacena el mensaje.
+  2. Publica ese mensaje en el canal `messages` de Redis usando el mecanismo Pub/Sub.
+
+- Cualquier servicio o script que esté suscripto al canal `messages` recibirá el mensaje automáticamente.
+
+---
+
+### ¿Cómo probar el flujo Pub/Sub?
+
+#### 1. Levanta todos los servicios con Docker Compose
+
+```sh
+docker-compose up --build
 ```
 
-## Compile and run the project
+#### 2. Envía un mensaje usando Postman o curl
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```sh
+curl -X POST http://localhost:8080/messages \
+  -H "Authorization: Bearer TU_JWT_AQUI" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hola mundo","userId":"123"}'
 ```
 
-## Run tests
+#### 3. Suscríbete al canal desde la CLI de Redis
 
-```bash
-# unit tests
-$ npm run test
+En otra terminal, ejecuta:
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```sh
+docker exec -it nola_redis redis-cli
+127.0.0.1:6379> SUBSCRIBE messages
 ```
 
-## Deployment
+Cuando envíes un mensaje, verás algo así en la consola de Redis:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
+```
+1) "message"
+2) "messages"
+3) "{\"email\":\"usuario@ejemplo.com\",\"message\":\"Hola mundo\",\"timestamp\":\"2025-06-22T22:00:00.000Z\"}"
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+#### 4. (Opcional) Suscríbete desde Node.js
 
-## Resources
+Puedes crear un pequeño script para escuchar mensajes:
 
-Check out a few resources that may come in handy when working with NestJS:
+```js
+const Redis = require('ioredis');
+const redis = new Redis({ host: 'localhost', port: 6379 });
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+redis.subscribe('messages', () => {
+  console.log('Suscripto al canal messages');
+});
 
-## Support
+redis.on('message', (channel, message) => {
+  console.log(`Mensaje recibido en ${channel}: ${message}`);
+});
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Descripción breve de la arquitectura
 
-## Stay in touch
+La aplicación está compuesta por los siguientes módulos y servicios principales:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Backend NestJS:** Expone endpoints HTTP y WebSocket. Gestiona la autenticación, almacenamiento y publicación de mensajes.
+- **PostgreSQL:** Base de datos relacional para persistir usuarios y, opcionalmente, mensajes.
+- **Redis:** Utilizado como sistema de mensajería Pub/Sub para distribuir mensajes en tiempo real entre servicios o procesos.
+- **Docker Compose:** Orquesta los servicios (backend, base de datos y Redis) para facilitar el desarrollo y despliegue.
 
-## License
+### Flujo principal
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+1. **Autenticación:** Los usuarios se autentican mediante JWT.
+2. **Envío de mensajes:**  
+   - El endpoint `/messages` recibe mensajes autenticados.
+   - El servicio de mensajes almacena el mensaje (en memoria o en la base de datos).
+   - El mensaje se publica en un canal Redis (`messages`) usando el patrón Pub/Sub.
+3. **Consumo de mensajes:**  
+   - Cualquier servicio, microservicio o script suscripto al canal Redis puede recibir los mensajes en tiempo real.
+
+Esta arquitectura desacopla la lógica de publicación y consumo, permitiendo escalar y agregar nuevos consumidores sin modificar el backend principal.
+
+---
+
+### Conclusión conceptual
+
+El patrón Pub/Sub de Redis permite desacoplar la lógica de publicación y consumo de mensajes, facilitando la escalabilidad y la

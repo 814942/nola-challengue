@@ -13,5 +13,9 @@ export const config = (): ConfigProps => ({
   tokens: {
     access: process.env.JWT_ACCESS_SECRET as string,
     refresh: process.env.JWT_REFRESH_SECRET as string,
-  }
+  },
+  redis: {
+    host: process.env.REDIS_HOST as string,
+    port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+  },
 });
