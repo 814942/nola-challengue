@@ -63,6 +63,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(port!, () => console.log(`Application running on port ${port}`));
+  try {
+    await app.listen(process.env.PORT || 3000);
+    console.log(`App listening on port ${port}`);
+  } catch (err) {
+    console.error('💥 Error al levantar la app:', err);
+  }
+  // await app.listen(port!, () => console.log(`Application running on port ${port}`));
 }
 bootstrap();
