@@ -4,6 +4,7 @@ interface DatabaseConfigProps {
   username: string;
   password: string;
   name: string;
+  schema: string;
 }
 
 interface Tokens {

@@ -8,6 +8,7 @@ export const config = (): ConfigProps => ({
     username: process.env.DATABASE_USERNAME as string,
     password: process.env.DATABASE_PASSWORD as string,
     name: process.env.DATABASE_NAME as string,
+    schema: process.env.DATABASE_SCHEMA as string,
   },
   whitelist: process.env.OPEN_URL_CONNECTION as string,
   tokens: {
