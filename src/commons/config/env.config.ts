@@ -17,5 +17,8 @@ export const config = (): ConfigProps => ({
   redis: {
     host: process.env.REDIS_HOST as string,
     port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+    url: process.env.REDIS_URL as string,
   },
+  environment: process.env.NODE_ENV as string,
+  isProduction: process.env.NODE_ENV === 'production',
 });

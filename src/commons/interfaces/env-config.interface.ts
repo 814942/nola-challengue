@@ -14,6 +14,7 @@ interface Tokens {
 interface RedisConfigProps {
   host: string;
   port: number;
+  url?: string;
 };
 
 export interface ConfigProps {
@@ -22,4 +23,6 @@ export interface ConfigProps {
   whitelist: string;
   tokens: Tokens;
   redis: RedisConfigProps
+  environment?: string;
+  isProduction?: boolean;
 }
