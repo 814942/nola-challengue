@@ -9,6 +9,7 @@ import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './users/users.module';
 import { WebsocketsModule } from './websockets/websockets.module';
 import { MessagesModule } from './messages/messages.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { MessagesModule } from './messages/messages.module';
     WebsocketsModule,
     MessagesModule
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}
