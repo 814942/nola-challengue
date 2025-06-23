@@ -1,4 +1,214 @@
-# WebSocket Gateway - Prueba y Documentación
+# Nola Tech Challenge - Backend
+
+Este servidor implementa una API y un WebSocket Gateway seguro usando NestJS, Redis y PostgreSQL, cumpliendo con los siguientes requerimientos:
+
+- WebSocket Gateway autenticado con JWT.
+- Mensaje de bienvenida al conectar.
+- Respuesta a mensajes "ping" con "pong {timestamp}".
+- Endpoint REST para publicar mensajes, que almacena y publica en Redis.
+- Separación de lógica en servicios y handlers.
+- Pruebas unitarias básicas.
+
+## URL de Producción
+
+Puedes probar el servidor en producción aquí:
+
+[https://nola-challengue.onrender.com](https://nola-challengue.onrender.com)
+<button onclick="navigator.clipboard.writeText('https://nola-challengue.onrender.com')">Copiar URL</button>
+
+> Si el botón no funciona, copia manualmente la URL.
+
+## Ejecución local
+
+1. Clona el repositorio.
+2. Instala dependencias:  
+   ```bash
+   npm install
+   ```
+3. Levanta Redis y PostgreSQL (puedes usar Docker):
+   ```bash
+   docker-compose up -d
+   ```
+4. Ejecuta el servidor:
+   ```bash
+   npm run start:dev
+   ```
+
+## Endpoints principales
+
+### WebSocket
+
+- URL: `wss://nola-challengue.onrender.com`
+- Autenticación: JWT en el handshake
+- Mensajes soportados:
+  - Al conectar: Recibes `Bienvenido {usuario}`
+  - Envía: `{ "event": "ping" }` → Recibes: `{ "event": "pong", "data": "{timestamp}" }`
+
+### REST
+
+- `POST /messages`
+  - Body: `{ "message": "texto" }`
+  - Almacena el mensaje y lo publica en un canal Redis.
+
+## Ejemplo de colección Postman
+<details>
+<summary>Ver colección Postman (JSON)</summary>
+
+```json
+{
+	"info": {
+		"_postman_id": "05909c21-ae31-4b3c-9be5-9030a40e0c09",
+		"name": "Nola Tech",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13561508"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Sign up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parsea la respuesta JSON\r",
+									"let response = pm.response.json();\r",
+									"\r",
+									"// Verifica si el token existe en la respuesta\r",
+									"if (response.tokens) {\r",
+									"    pm.environment.set(\"accessToken\", response.tokens.accessToken);\r",
+									"    console.log(\"JWT guardado en auth ✅\");\r",
+									"} else {\r",
+									"    console.log(\"No se encontró accessToken ❌\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"lila_stark@houses.com\",\r\n    \"password\": \"Win3r1sC0mm1nG!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/sign-up",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"sign-up"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign in",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parsea la respuesta JSON\r",
+									"let response = pm.response.json();\r",
+									"\r",
+									"// Verifica si el token existe en la respuesta\r",
+									"if (response.token) {\r",
+									"    pm.environment.set(\"token\", response.token);\r",
+									"    console.log(\"JWT guardado en auth ✅\");\r",
+									"} else {\r",
+									"    console.log(\"No se encontró accessToken ❌\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"brand_stark@houses.com\",\r\n    \"password\": \"Win3r1sC0mm1nG!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/sign-in",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create message",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"123\",\r\n    \"message\": \"Hola desde Redis!\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/messages",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"messages"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
+```
+</details>
 
 ## Probar WebSocket Gateway con Postman
 
@@ -8,10 +218,6 @@
 
 ### 2. Conectarse al WebSocket
 - En Postman, seleccioná **New → Socket.IO Request**.
-- Usá la siguiente URL:
-  ```
-  ws://localhost:8080
-  ```
 - En la pestaña **Headers**, agregá:
   ```
   Key: Authorization
