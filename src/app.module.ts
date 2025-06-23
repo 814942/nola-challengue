@@ -29,7 +29,7 @@ import { HealthController } from './health.controller';
         database: configService.get<string>('database.name'),
         schema: configService.get<string>('database.schema'),
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: configService.get<string>('isProduction') ? false : true,
         retryAttempts: 10,
         retryDelay: 3000,
         connectTimeout: 60000,

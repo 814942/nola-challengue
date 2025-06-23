@@ -24,8 +24,7 @@ export class User {
     minLength: 6,
     maxLength: 50,
   })
-  // @Exclude()
-  @Column({ select: false })
+  @Column()
   password: string;
 
   @CreateDateColumn({ type: 'timestamp' })
