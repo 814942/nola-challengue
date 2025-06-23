@@ -27,7 +27,7 @@ import { MessagesModule } from './messages/messages.module';
         password: configService.get<string>('database.password'),
         database: configService.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
         retryAttempts: 10,
         retryDelay: 3000,
         connectTimeout: 60000,
