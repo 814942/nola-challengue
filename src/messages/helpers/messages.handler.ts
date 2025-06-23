@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 import { LoggerService } from '../../logger/logger.service';
 import { PubMessage } from '../interfaces/message.interface';
@@ -6,17 +6,12 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MessagesHandler implements OnModuleInit {
-  private redisPublisher: Redis;
-
   constructor(
+    @Inject('REDIS_CLIENT') private readonly redisPublisher: Redis,
     private readonly _logger: LoggerService,
     private readonly configService: ConfigService
   ) {
     this._logger.setContext(MessagesHandler.name);
-    this.redisPublisher = new Redis({
-      host: this.configService.get<string>('redis.host'),
-      port: this.configService.get<number>('redis.port'),
-    });
   }
 
   onModuleInit() {
