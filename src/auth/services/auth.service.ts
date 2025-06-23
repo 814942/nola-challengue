@@ -88,6 +88,7 @@ export class AuthService {
       const userFound = await this.usersService.findUserByEmail(
         UserSignUpBody.email,
       );
+      console.log("🚀 ~ AuthService ~ signIn ~ userFound:", userFound)
 
       await this.validateUserPassword(UserSignUpBody.password, userFound.password);
 
